@@ -76,6 +76,11 @@ crashlytics-build.properties
 tools/__pycache__/
 *.log
 
+# Captures written by tools/drive_game.py at every verification: artefacts describing a run, not
+# sources. Versioning them would put a binary diff in every commit that checked something.
+/docs/check.png
+/docs/run-*.png
+
 # ---------------------------------------------------------------- Warning
 # NEVER ignore the .meta files: Unity stores the GUID of every asset in them. A missing .meta
 # loses every reference that pointed at the asset (scripts detached from their GameObjects,
