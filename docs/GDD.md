@@ -83,7 +83,7 @@ place on both layouts -- do not add a WASD alias without re-reading `docs/pitfal
 
 | System | File | In one sentence |
 |---|---|---|
-| <!-- Movement --> | <!-- [gdd/movement.md](gdd/movement.md) --> | <!-- what it does --> |
+| Running and lanes | [gdd/running-and-lanes.md](gdd/running-and-lanes.md) | Goes forward on its own, changes lane, jumps -- no number measured yet |
 
 ## 5. Progression and difficulty
 

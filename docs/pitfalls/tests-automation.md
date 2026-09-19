@@ -37,6 +37,10 @@ See the **`/verify-in-game`** skill for the full procedure. The pitfalls, in sho
   produces a plausible image, and whatever is concluded from it is wrong. Before trusting an odd
   capture, check the size printed by `drive_game.py`: the game is launched at 1280x720, so any rect
   far from ~1298x767 is not the game window.
+- **`prime()` presses Down then Up, and those are game actions.** The throwaway key that works
+  around the lost-first-press is not neutral: Up is the jump. Every scenario driven through
+  `--keys` therefore starts with a jump already under way, which shifts what the first capture
+  shows. Read a capture with that in mind, or leave a beat before measuring.
 - **A decoy window built with WinForms but no message pump is never enumerated**: a first attempt at
   testing the above with `$f.Show()` from a sleeping PowerShell produced a window that `EnumWindows`
   never saw -- so the test passed while proving nothing. Use a real application (Notepad) to

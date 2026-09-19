@@ -6,6 +6,8 @@ using UnityEngine.Rendering.Universal;
 using UnityEngine.SceneManagement;
 using UnityEngine.UI;
 using UnityEngine.InputSystem.UI;
+using LemonRun.Gameplay;
+using LemonRun.Rules;
 
 namespace LemonRun.EditorTools
 {
@@ -38,16 +40,17 @@ namespace LemonRun.EditorTools
         {
             Scene scene = EditorSceneManager.NewScene(NewSceneSetup.EmptyScene, NewSceneMode.Single);
 
-            BuildCamera();
+            var runner = BuildRunner();
+            BuildCamera(runner.transform);
             BuildSun();
-            BuildPipelineProbe();
+            BuildRoad(runner.transform);
             BuildEventSystem();
-            BuildStampCanvas();
+            BuildStampCanvas(runner.GetComponent<Runner>());
 
-            // ---- The game starts here ------------------------------------------------------
-            // Add your own building methods (ground, player, HUD, menus, ...). Keep them short and
-            // named after what they place: this list is what gets re-read to know what the scene is
-            // made of.
+            // ---- The game continues here ---------------------------------------------------
+            // Add your own building methods (obstacles, fruit, the pursuer, HUD, menus, ...).
+            // Keep them short and named after what they place: this list is what gets re-read to
+            // know what the scene is made of.
             // ---------------------------------------------------------------------------------
 
             Directory.CreateDirectory(Path.GetDirectoryName(ScenePath));
@@ -62,7 +65,7 @@ namespace LemonRun.EditorTools
         /// the GDD settled on. The values are provisional -- they are set for real once there is
         /// something to follow.
         /// </summary>
-        static void BuildCamera()
+        static void BuildCamera(Transform target)
         {
             var go = new GameObject("Main Camera");
             var camera = go.AddComponent<Camera>();
@@ -72,9 +75,12 @@ namespace LemonRun.EditorTools
             camera.farClipPlane = 250f;
             camera.clearFlags = CameraClearFlags.SolidColor;
             camera.backgroundColor = new Color(0.10f, 0.10f, 0.18f);
-            camera.transform.position = new Vector3(0f, 4.5f, -7f);
             camera.transform.rotation = Quaternion.Euler(14f, 0f, 0f);
             go.tag = "MainCamera";
+
+            var rig = go.AddComponent<CameraRig>();
+            rig.Target = target;
+            camera.transform.position = target.position + rig.Offset;
 
             // The camera's URP data is a separate component: without it, the camera falls back on
             // default values and ignores the renderer.
@@ -106,43 +112,119 @@ namespace LemonRun.EditorTools
             RenderSettings.ambientLight = new Color(0.24f, 0.25f, 0.34f);
         }
 
-        /// <summary>
-        /// TEMPORARY -- a ground strip and a cube, only there to prove that the 3D pipeline really
-        /// draws. Remove it the moment the real ground and runner exist.
-        /// </summary>
-        /// <remarks>
-        /// WARNING: the material is built from the URP shader <b>by name</b> rather than left to
-        /// the default of <c>CreatePrimitive</c>. A primitive carrying a Built-in pipeline
-        /// material renders <b>magenta</b> under URP -- a defect that raises nothing and that only
-        /// a screenshot reveals.
-        /// </remarks>
-        static void BuildPipelineProbe()
-        {
-            var ground = GameObject.CreatePrimitive(PrimitiveType.Cube);
-            ground.name = "Probe Ground (temporary)";
-            ground.transform.position = new Vector3(0f, -0.5f, 25f);
-            ground.transform.localScale = new Vector3(9f, 1f, 80f);
-            Paint(ground, new Color(0.18f, 0.20f, 0.28f));
+        const int TileCount = 8;
+        const float TileLength = 40f;
+        const float DashSpacing = 5f;
+        const float DashLength = 2.2f;
 
-            var cube = GameObject.CreatePrimitive(PrimitiveType.Cube);
-            cube.name = "Probe Cube (temporary)";
-            cube.transform.position = new Vector3(0f, 0.6f, 6f);
-            cube.transform.rotation = Quaternion.Euler(0f, 25f, 0f);
-            Paint(cube, new Color(0.96f, 0.82f, 0.18f));
+        /// <summary>The runner itself -- a plain cube until there is a lemon to put here.</summary>
+        static GameObject BuildRunner()
+        {
+            var go = GameObject.CreatePrimitive(PrimitiveType.Cube);
+            go.name = "Runner";
+            go.transform.localScale = new Vector3(0.8f, 0.8f, 0.8f);
+            go.transform.position = new Vector3(0f, 0.4f, 0f);
+            Paint(go, Lit(new Color(0.96f, 0.82f, 0.18f)));
+
+            // The collider comes free with the primitive and nothing reads it yet. Left in place,
+            // it would silently start catching things the day an obstacle arrives.
+            Object.DestroyImmediate(go.GetComponent<BoxCollider>());
+
+            go.AddComponent<Runner>();
+            return go;
         }
 
-        static void Paint(GameObject target, Color color)
+        /// <summary>
+        /// The road: <see cref="TileCount"/> tiles recycled in front of the runner, each carrying
+        /// its own lane markings.
+        /// </summary>
+        /// <remarks>
+        /// WARNING: the lane width is baked into this geometry at build time, while the runner
+        /// reads it from the tuning at run time. Changing <c>LaneWidth</c> in <c>tuning.json</c>
+        /// therefore slides the runner off the painted lanes, with nothing to warn about it: that
+        /// one value needs a rebuild, not a tuning pass.
+        ///
+        /// The dashes are not decoration. On a plain uniform strip, forward motion is invisible:
+        /// with nothing passing by, a runner at 12 units per second and one standing still look
+        /// exactly the same.
+        /// </remarks>
+        static void BuildRoad(Transform target)
+        {
+            var tuning = new RunnerTuning();
+            float laneWidth = tuning.LaneWidth;
+            float roadWidth = Lanes.Count * laneWidth + 1f;
+
+            var road = new GameObject("Road");
+            var treadmill = road.AddComponent<GroundTreadmill>();
+            treadmill.Target = target;
+            treadmill.TileLength = TileLength;
+
+            var asphalt = Lit(new Color(0.17f, 0.19f, 0.27f));
+            var dash = Lit(new Color(0.75f, 0.78f, 0.86f));
+            var edge = Lit(new Color(0.34f, 0.37f, 0.48f));
+
+            for (int i = 0; i < TileCount; i++)
+            {
+                // One tile behind the start, so the road does not begin under the camera.
+                var tile = new GameObject($"Tile {i}");
+                tile.transform.SetParent(road.transform, false);
+                tile.transform.position = new Vector3(0f, 0f, (i - 1) * TileLength);
+
+                Slab(tile.transform, "Asphalt", new Vector3(0f, -0.5f, 0f),
+                     new Vector3(roadWidth, 1f, TileLength), asphalt);
+
+                for (int side = -1; side <= 1; side += 2)
+                {
+                    Slab(tile.transform, "Edge",
+                         new Vector3(side * (roadWidth / 2f - 0.2f), 0.01f, 0f),
+                         new Vector3(0.25f, 0.02f, TileLength), edge);
+
+                    for (float z = -TileLength / 2f + DashSpacing / 2f; z < TileLength / 2f; z += DashSpacing)
+                    {
+                        Slab(tile.transform, "Dash",
+                             new Vector3(side * laneWidth / 2f, 0.01f, z),
+                             new Vector3(0.12f, 0.02f, DashLength), dash);
+                    }
+                }
+            }
+        }
+
+        static void Slab(Transform parent, string name, Vector3 position, Vector3 scale, Material material)
+        {
+            var go = GameObject.CreatePrimitive(PrimitiveType.Cube);
+            go.name = name;
+            go.transform.SetParent(parent, false);
+            go.transform.localPosition = position;
+            go.transform.localScale = scale;
+            Object.DestroyImmediate(go.GetComponent<BoxCollider>());
+            Paint(go, material);
+        }
+
+        /// <summary>A URP lit material, built from the shader <b>by name</b>.</summary>
+        /// <remarks>
+        /// WARNING: not left to the default of <c>CreatePrimitive</c>. A primitive carrying a
+        /// Built-in pipeline material renders <b>magenta</b> under URP -- a defect that raises
+        /// nothing at all, and that only a screenshot reveals.
+        ///
+        /// Materials created here are serialised INTO the scene, which is itself an artefact: no
+        /// asset to manage, and nothing left behind when the scene is regenerated.
+        /// </remarks>
+        static Material Lit(Color color)
         {
             var shader = Shader.Find("Universal Render Pipeline/Lit");
             if (shader == null)
             {
-                Debug.LogError("URP Lit shader not found: the probe would render magenta.");
-                return;
+                Debug.LogError("URP Lit shader not found: everything would render magenta.");
+                return null;
             }
 
-            // A material created here is serialised INTO the scene -- no asset to manage, which
-            // suits an object whose whole purpose is to be deleted.
-            target.GetComponent<MeshRenderer>().sharedMaterial = new Material(shader) { color = color };
+            return new Material(shader) { color = color };
+        }
+
+        static void Paint(GameObject target, Material material)
+        {
+            if (material == null) return;
+            target.GetComponent<MeshRenderer>().sharedMaterial = material;
         }
 
         /// <summary>
@@ -161,7 +243,7 @@ namespace LemonRun.EditorTools
         /// The build stamp lives on its <b>own</b> canvas rather than in the HUD: the HUD goes
         /// dark as soon as a menu opens, and menus are exactly where most screenshots are taken.
         /// </summary>
-        static void BuildStampCanvas()
+        static void BuildStampCanvas(Runner runner)
         {
             var canvasGo = new GameObject("Build Stamp Canvas");
             var canvas = canvasGo.AddComponent<Canvas>();
@@ -193,6 +275,37 @@ namespace LemonRun.EditorTools
             rect.sizeDelta = new Vector2(300f, 20f);
 
             labelGo.AddComponent<BuildStampLabel>();
+
+            BuildDebugReadout(canvasGo.transform, runner);
+        }
+
+        /// <summary>
+        /// DEBUG readout, top left. Temporary: it goes the day the real HUD arrives.
+        /// </summary>
+        /// <remarks>
+        /// It rides the stamp canvas rather than the HUD for the same reason the stamp does: it
+        /// must survive every screen, since the screens are where captures get taken.
+        /// </remarks>
+        static void BuildDebugReadout(Transform canvas, Runner runner)
+        {
+            var go = new GameObject("Run Debug");
+            go.transform.SetParent(canvas, false);
+
+            var text = go.AddComponent<Text>();
+            text.font = Resources.GetBuiltinResource<Font>("LegacyRuntime.ttf");
+            text.fontSize = 16;
+            text.alignment = TextAnchor.UpperLeft;
+            text.color = new Color(1f, 1f, 1f, 0.75f);
+            text.raycastTarget = false;
+
+            var rect = go.GetComponent<RectTransform>();
+            rect.anchorMin = new Vector2(0f, 1f);
+            rect.anchorMax = new Vector2(0f, 1f);
+            rect.pivot = new Vector2(0f, 1f);
+            rect.anchoredPosition = new Vector2(12f, -10f);
+            rect.sizeDelta = new Vector2(420f, 24f);
+
+            go.AddComponent<LemonRun.UI.RunDebugLabel>().Runner = runner;
         }
     }
 }
