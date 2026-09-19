@@ -16,30 +16,46 @@ Lemon Run
 
 ## Tagline (one line, under the title)
 
-A game.
+Something is chasing you. Every fruit you swallow buys back the ground you lost.
 
 ## Description
 
-<!--
-Structure that works, in this order:
+You run down three lanes with a pursuer at your back. Hit something and it closes in; swallow a
+fruit and it falls back.
 
-1. ONE SENTENCE saying what you DO in the game. Not the setting, not the genre: the verb.
-2. A GIF or a screenshot that shows that sentence.
-3. The controls - keyboard AND touch if the game is played with a finger.
-4. What is in it, as a short list.
-5. Credits and licences.
--->
+The catch is where the fruit grows: **never on the lane that is clear.** Staying safe means going
+hungry, and going hungry means being caught. Every row asks the same question, and you answer it
+about once a second.
+
+<!-- SCREENSHOT to insert here: docs/run-fruit.png shows it in one image -- the runner on the free
+     middle lane, and the fruit floating above an obstacle in the lane beside it. -->
 
 ### Controls
 
 | Action | Keyboard | Touch |
 |---|---|---|
-| | | |
+| Change lane | Left / Right arrow | -- not in 0.1 |
+| Jump | Space or Up arrow | -- not in 0.1 |
+| Run again once caught | Space | -- not in 0.1 |
+
+WARNING: 0.1.0 is keyboard only. Say so on the page rather than letting a phone visitor find out:
+the **Mobile friendly** box must stay unticked until touch controls exist.
+
+### What is in 0.1.0
+
+- Three lanes, a jump, and a road that never ends
+- Obstacles of two kinds: the low ones you may jump *or* go round, the tall ones you must go round
+- A pursuer, and a lead measured in seconds rather than lives
+- A score: metres run plus fruit swallowed
+
+It is a first playable version. There is no sound, the shapes are placeholder blocks, and none of
+the tuning has been played enough to be called balanced.
 
 ### Credits
 
-<!-- Fonts (SIL OFL, include OFL.txt), sounds (CC0 / Kenney), music and its licence.
-     WARNING: check COMMERCIAL usage: some free generation plans forbid it. -->
+Font: Unity's built-in LegacyRuntime.
+<!-- Nothing else yet: no sound, no music, no third-party asset. Fill this in as soon as there is
+     one, with its licence, and check COMMERCIAL usage -- some free generation plans forbid it. -->
 
 ---
 

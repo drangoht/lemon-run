@@ -151,3 +151,11 @@ if ($Run -or $Capture) {
         Write-Host "WARNING: drive_game.py returned $LASTEXITCODE - read its output above." -ForegroundColor Yellow
     }
 }
+
+# WARNING: this exit is not decoration -- without it a SUCCESSFUL build reports failure to whoever
+# called this script. `& script.ps1` does not set $LASTEXITCODE; only a native executable or an
+# explicit `exit` does. The failure paths above all call `exit 1`, so on success the variable kept
+# whatever value it already held -- and in a fresh session that is $null, which `-ne 0` says is
+# TRUE. release_itch.ps1 therefore declared every build failed, on the very first release the
+# project ever attempted.
+exit 0
