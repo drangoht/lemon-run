@@ -37,6 +37,11 @@ See the **`/verify-in-game`** skill for the full procedure. The pitfalls, in sho
   produces a plausible image, and whatever is concluded from it is wrong. Before trusting an odd
   capture, check the size printed by `drive_game.py`: the game is launched at 1280x720, so any rect
   far from ~1298x767 is not the game window.
+- **A key bound to two actions makes a scenario measure something else.** Space is both the jump
+  and the restart. A 26 s pass "jumping throughout" reported 108 m, 0 hits and 0 fruit: every
+  catch had been followed by my own key restarting the run, and the capture showed a fresh one.
+  Nothing was wrong with the game. Drive with a key bound to ONE action -- here the Up arrow,
+  which only jumps -- or check the bindings table in GDD section 3 before building a scenario.
 - **A driving cadence that beats against a game duration measures the beat, not the game.**
   Jumping every 0.60 s against a 0.62 s jump arc has every other press refused (no double jump),
   leaves the runner grounded ~48 % of the time, and turned an 80 % drop in hits into a 43 % one.

@@ -61,8 +61,23 @@ namespace LemonRun.Rules
         /// <summary>Seconds of lead a hit hands back to the pursuer.</summary>
         public float HitCost = 0.7f;
 
-        /// <summary>Seconds a fruit buys back. Unused until the fruit exists.</summary>
+        /// <summary>Seconds a fruit buys back.</summary>
+        /// <remarks>
+        /// Half what a hit costs, so a mistake takes two fruit to undo. Deliberate: a fruit that
+        /// paid for a whole hit would make the greedy line strictly better than the careful one,
+        /// and there would be no choice left to make.
+        /// </remarks>
         public float FruitGain = 0.35f;
+
+        /// <summary>Chance, in percent, that a row with a jumpable lane carries a fruit.</summary>
+        public int FruitPercent = 55;
+
+        /// <summary>Height a fruit floats at, and how far off it may still be swallowed.</summary>
+        public float FruitHeight = 1.05f;
+        public float FruitReach = 0.75f;
+
+        /// <summary>What one fruit adds to the score, in the same unit as a metre run.</summary>
+        public int PointsPerFruit = 10;
 
         /// <summary>Closest and furthest the pursuer is DRAWN behind the runner, in world units.</summary>
         /// <remarks>

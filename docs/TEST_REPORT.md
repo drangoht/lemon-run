@@ -7,6 +7,41 @@ the tested version.
 > the old one as such**: the reasoning that led to the mistake is worth as much as the correction.
 > This file is what avoids re-reporting a known bug and redoing a test already settled.
 
+## Session of 2026-09-19 - v1.0-547f287+ - the fruit
+
+**Scope**: that fruit is laid where GDD section 5 says, that it is swallowed, that it buys lead
+back and that it scores. **Not** tested: the choice the whole system is built on -- leaving the
+opening for a fruit. No scenario made that decision.
+
+**Method**: seed `4242`, every blocked lane low and carrying fruit (`BlockedPercent 100`,
+`FullPercent 0`, `FruitPercent 100`), rows packed dense. Paired runs, same road.
+
+### What works
+
+| Run | Distance | Fruit | Hits | Score |
+|---|---|---|---|---|
+| No input | 182 m | 0 | 5 | 182 |
+| Jumping throughout | **278 m** | **3** | **6** | **308** |
+
+Three fruit bought back 3 x 0.35 = 1.05 s on a 3.0 s lead, which is 4.05 s in all and therefore
+exactly **one extra hit survived** -- six instead of five. The arithmetic of the loop checks out
+end to end.
+
+The score panel reads `308 / 278 m + 3 fruit`: the breakdown is on screen, not just the total.
+
+Placement was verified by eye as well as by test: on `docs/run-fruit.png` the fruit floats above
+an orange low obstacle in a side lane while the runner sits on the free middle one -- which is
+section 5 rendered literally. No fruit ever appeared on a crimson full lane.
+
+### A scenario that measured itself, again
+
+The first jumping pass reported 108 m, 0 hits, 0 fruit -- nonsense. **Space is bound to both the
+jump and the restart**, so every catch was silently followed by my own key restarting the run, and
+the capture showed a fresh one. Redone with the Up arrow, which only jumps.
+
+Same family as the 0.60 s cadence of the previous session: the scenario was measuring itself.
+Recorded in `docs/pitfalls/tests-automation.md`.
+
 ## Session of 2026-09-19 - v1.0-de54e10+ - the pursuer
 
 **Scope**: the chase loop end to end -- lead draining on hits, gauge, catch, restart. **Not**

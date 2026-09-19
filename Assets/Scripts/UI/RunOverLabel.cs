@@ -24,7 +24,9 @@ namespace LemonRun.UI
         {
             if (_text == null || Session == null) return;
 
-            _text.text = $"CAUGHT\n{Session.FinalDistance:0} m\n\nSpace to run again";
+            _text.text = $"CAUGHT\n{Session.FinalScore}\n" +
+                         $"{Session.FinalDistance:0} m + {Session.FinalFruit} fruit\n\n" +
+                         "Space to run again";
         }
     }
 }

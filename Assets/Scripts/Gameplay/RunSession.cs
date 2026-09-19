@@ -22,8 +22,11 @@ namespace LemonRun.Gameplay
 
         public bool IsOver { get; private set; }
 
-        /// <summary>Distance run when the pursuer caught up -- the score, until fruit counts too.</summary>
         public float FinalDistance { get; private set; }
+        public int FinalFruit { get; private set; }
+
+        /// <summary>Distance run plus fruit swallowed (GDD section 2).</summary>
+        public int FinalScore { get; private set; }
 
         float _lockout;
 
@@ -60,6 +63,9 @@ namespace LemonRun.Gameplay
         {
             IsOver = true;
             FinalDistance = Runner.Distance;
+            FinalFruit = Runner.Fruit;
+            FinalScore = Score.Total(FinalDistance, FinalFruit,
+                                     Runner.Tuning != null ? Runner.Tuning.PointsPerFruit : 10);
             Runner.Frozen = true;
             _lockout = Runner.Tuning != null ? Runner.Tuning.RestartLockout : 0.7f;
 

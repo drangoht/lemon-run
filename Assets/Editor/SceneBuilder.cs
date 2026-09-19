@@ -46,9 +46,9 @@ namespace LemonRun.EditorTools
             BuildCamera(runnerGo.transform);
             BuildSun();
             BuildRoad(runnerGo.transform);
-            BuildObstacles(runner);
 
             var pursuer = BuildPursuer(runner);
+            BuildObstacles(runner, pursuer);
 
             var session = new GameObject("Run Session").AddComponent<RunSession>();
             session.Runner = runner;
@@ -211,13 +211,18 @@ namespace LemonRun.EditorTools
         /// the answer to each differs (jump or go round), so telling them apart at a distance is
         /// the whole readability of the road.
         /// </remarks>
-        static void BuildObstacles(Runner runner)
+        static void BuildObstacles(Runner runner, Pursuer pursuer)
         {
             var go = new GameObject("Obstacles");
             var field = go.AddComponent<ObstacleField>();
             field.Runner = runner;
+            field.Pursuer = pursuer;
             field.LowMaterial = Lit(new Color(0.90f, 0.45f, 0.15f));
             field.FullMaterial = Lit(new Color(0.72f, 0.20f, 0.30f));
+
+            // Pale green: the only thing on the road that is not a warning, and it must read as
+            // such from far enough away to decide whether it is worth leaving the opening for.
+            field.FruitMaterial = Lit(new Color(0.55f, 0.95f, 0.35f));
         }
 
         /// <summary>

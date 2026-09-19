@@ -20,8 +20,10 @@ namespace LemonRun.Gameplay
     public class ObstacleField : MonoBehaviour
     {
         public Runner Runner;
+        public Pursuer Pursuer;
         public Material LowMaterial;
         public Material FullMaterial;
+        public Material FruitMaterial;
 
         /// <summary>How far ahead of the runner the road is kept laid.</summary>
         public float LookAhead = 140f;
@@ -33,6 +35,8 @@ namespace LemonRun.Gameplay
         {
             public float Z;
             public Blocker[] Lanes;
+            public int FruitLane = FruitPlacement.None;
+            public GameObject FruitPiece;
             public readonly List<GameObject> Pieces = new List<GameObject>();
         }
 
@@ -106,6 +110,22 @@ namespace LemonRun.Gameplay
                 row.Pieces.Add(piece);
             }
 
+            // The fruit belongs to the row rather than to a field of its own: GDD section 5 ties
+            // it to a lane that is blocked low, so it cannot be placed without knowing the row.
+            row.FruitLane = FruitPlacement.LaneFor(lanes, ref _state, _tuning.FruitPercent);
+            if (row.FruitLane != FruitPlacement.None)
+            {
+                var fruit = Take();
+                fruit.transform.localScale = new Vector3(0.55f, 0.55f, 0.55f);
+                fruit.transform.position = new Vector3(Lanes.CenterX(row.FruitLane, _tuning.LaneWidth),
+                                                       _tuning.FruitHeight, z);
+                fruit.GetComponent<MeshRenderer>().sharedMaterial = FruitMaterial;
+                fruit.SetActive(true);
+
+                row.FruitPiece = fruit;
+                row.Pieces.Add(fruit);
+            }
+
             _rows.Add(row);
         }
 
@@ -121,8 +141,22 @@ namespace LemonRun.Gameplay
                 if (!ObstacleRules.Crossed(previousZ, currentZ, row.Z)) continue;
 
                 int lane = Lanes.NearestLane(Runner.transform.position.x, _tuning.LaneWidth);
+
                 if (ObstacleRules.Hits(row.Lanes[lane], Runner.Height, _tuning.LowClearance))
                     Runner.TakeHit();
+
+                if (row.FruitLane == lane && row.FruitPiece != null &&
+                    FruitPlacement.IsWithinReach(Runner.Height, _tuning.FruitHeight, _tuning.FruitReach))
+                {
+                    Runner.TakeFruit();
+                    if (Pursuer != null) Pursuer.Gain();
+
+                    // Hidden rather than taken back to the pool here: the row still owns it, and
+                    // TakeBack is the single place that returns pieces. Two owners for one object
+                    // is how a pooled piece ends up drawn in two places at once.
+                    row.FruitPiece.SetActive(false);
+                    row.FruitPiece = null;
+                }
             }
         }
 

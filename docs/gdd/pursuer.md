@@ -3,11 +3,9 @@
 The opposition of the game (GDD section 1). A hit hands lead back; when there is none left the run
 is over.
 
-> WARNING: **the game is knowingly incomplete here.** Nothing buys the lead back, because the fruit
-> does not exist yet, so a run is a countdown of five mistakes. Section 7 turned that design down
-> by name -- with no way back, the pursuer is a life counter in costume and the gauge says nothing
-> during a run. This is where the game stands between two systems; it must not be allowed to
-> settle in by default.
+> *Was true while this file stood alone, and no longer is: nothing bought the lead back, so a run
+> was a countdown of five mistakes -- the "three hits, no refund" design section 7 turned down by
+> name. The fruit now buys it back (`gdd/fruit.md`), and the gauge says something again.*
 
 ## The lead is held in seconds
 
@@ -19,8 +17,8 @@ reasoning that put the row spacing in seconds.
 | Value | Set to | Where it comes from |
 |---|---|---|
 | Lead at the start, and its cap | 3.0 s | by eye |
-| Cost of a hit | 0.7 s | by eye -- five mistakes end a run |
-| Bought back by a fruit | 0.35 s | by eye; **unused**, there is no fruit |
+| Cost of a hit | 0.7 s | by eye -- five mistakes end a run on no fruit at all |
+| Bought back by a fruit | 0.35 s | half a hit; the reasoning is in `gdd/fruit.md` |
 | Lockout before the restart key | 0.7 s | Space is also the jump: see below |
 
 The gain is capped at the starting lead. Without a cap, a player ahead on fruit could bank an
@@ -59,8 +57,6 @@ as though it restarted on its own.
 
 ## Still open
 
-- **The fruit.** Until it exists there is no way back, and the loop of section 2 is half built.
-- **The score is distance only.** Section 2 says distance *and* fruit.
 - **The gauge reddens only in its last quarter**, and by then it is also short. Whether that warns
   in time is unknown: it has been coded, not seen -- no capture caught it red.
 - **The pursuer is large in frame** even at full lead. That is a framing judgement and it needs

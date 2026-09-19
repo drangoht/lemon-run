@@ -60,7 +60,10 @@ Pure logic, no engine dependency, **tested**. This is where every numeric rule o
 - `RowSpacing` -- gap between rows expressed as a reaction window in seconds, not in units.
 - `Lead` -- the lead in SECONDS: what a hit costs, what fruit buys back, the gauge fraction,
   and the gap at which the pursuer is DRAWN (not the real one -- see gdd/pursuer.md).
-- `RunnerTuning` -- every tunable value of the running, obstacle and pursuer systems.
+- `FruitPlacement` -- which lane may carry a fruit (NEVER the free one, GDD section 5) and the
+  reach at which it is swallowed.
+- `Score` -- distance run plus fruit swallowed.
+- `RunnerTuning` -- every tunable value of the running, obstacle, pursuer and fruit systems.
 
 ## sec. Gameplay -- `Assets/Scripts/Gameplay/`
 
@@ -69,8 +72,9 @@ Pure logic, no engine dependency, **tested**. This is where every numeric rule o
 - `CameraRig` -- keeps the camera behind and above, following a lane change only halfway.
 - `GroundTreadmill` -- recycles the road tiles in front of the runner; the tiles are its children,
   placed by `SceneBuilder`.
-- `ObstacleField` -- lays the rows ahead, takes them back behind, and decides what the runner ran
-  into. Pools its pieces: an endless game collects its garbage at the worst moment.
+- `ObstacleField` -- lays the rows ahead (obstacles AND their fruit: the fruit is tied to a
+  blocked lane, so it cannot be placed without the row), takes them back behind, and decides what
+  the runner ran into or swallowed. Pools its pieces.
 - `Pursuer` -- holds the lead, drains it on each hit, and places itself in a band that keeps it
   framed. WARNING: its on-screen distance is NOT the lead.
 - `RunSession` -- watches for the catch, freezes the runner, shows the panel, restarts by

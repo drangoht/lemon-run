@@ -34,6 +34,10 @@ namespace LemonRun.Gameplay
         public float Height { get; private set; }
 
         public int Hits { get; private set; }
+        public int Fruit { get; private set; }
+
+        /// <summary>Swallowing a fruit. What it buys back is the pursuer's business.</summary>
+        public void TakeFruit() => Fruit++;
 
         MeshRenderer _renderer;
         Color _restColour;
