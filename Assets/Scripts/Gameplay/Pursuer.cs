@@ -32,7 +32,11 @@ namespace LemonRun.Gameplay
             if (Runner == null) return;
 
             _tuning = Runner.Tuning;
-            MaximumLead = _tuning.StartLead;
+            // The ceiling must stay above the opening lead, or a fruit taken before the first hit
+            // buys nothing. Guarded rather than trusted: the two were once the same value.
+            MaximumLead = _tuning.MaximumLead > _tuning.StartLead
+                        ? _tuning.MaximumLead
+                        : _tuning.StartLead * 1.5f;
             CurrentLead = _tuning.StartLead;
             _seenHits = Runner.Hits;
 

@@ -16,13 +16,20 @@ reasoning that put the row spacing in seconds.
 
 | Value | Set to | Where it comes from |
 |---|---|---|
-| Lead at the start, and its cap | 3.0 s | by eye |
+| Lead at the start | 3.0 s | by eye |
+| Ceiling fruit can buy back to | 4.5 s | must sit ABOVE the start -- see below |
 | Cost of a hit | 0.7 s | by eye -- five mistakes end a run on no fruit at all |
 | Bought back by a fruit | 0.35 s | half a hit; the reasoning is in `gdd/fruit.md` |
 | Lockout before the restart key | 0.7 s | Space is also the jump: see below |
 
-The gain is capped at the starting lead. Without a cap, a player ahead on fruit could bank an
-untouchable lead and the opposition would simply stop existing for the rest of the session.
+The gain is capped, but **above** the opening lead. Without a cap at all, a player ahead on
+fruit could bank an untouchable lead and the opposition would stop existing for the session.
+
+WARNING: the cap and the opening lead were once the SAME value, and that quietly made the fruit
+useless -- a run opened already at the ceiling, so anything swallowed before the first hit bought
+nothing. Nothing raised; the player simply saw a reward that did not reward. Found by playing,
+not by any test (BUG-001). The headroom is also what makes a clean early run worth something:
+bank now, survive two more mistakes later.
 
 ## What the player sees is not what the rules say
 

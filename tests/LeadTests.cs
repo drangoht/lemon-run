@@ -19,6 +19,32 @@ public class LeadTests
         Assert.True(Lead.IsCaught(-1f));
     }
 
+    /// <summary>
+    /// The defect found by playing: the run opened AT the ceiling, so a fruit swallowed before
+    /// the first hit bought nothing. The rule was right; the starting state made it a lie.
+    /// </summary>
+    [Fact]
+    public void A_fruit_taken_before_any_hit_must_still_buy_something()
+    {
+        var tuning = new RunnerTuning();
+
+        Assert.True(tuning.MaximumLead > tuning.StartLead,
+                    "the ceiling must sit above the opening lead, or early fruit is wasted");
+
+        float afterOne = Lead.AfterGain(tuning.StartLead, tuning.FruitGain, tuning.MaximumLead);
+        Assert.True(afterOne > tuning.StartLead, "a fruit on a clean run changed nothing");
+    }
+
+    [Fact]
+    public void The_headroom_is_worth_a_couple_of_mistakes()
+    {
+        var tuning = new RunnerTuning();
+        float headroom = tuning.MaximumLead - tuning.StartLead;
+
+        Assert.True(headroom >= tuning.HitCost * 2f,
+                    "banking fruit should be worth at least two extra mistakes");
+    }
+
     [Fact]
     public void A_fixed_number_of_hits_ends_the_run_when_nothing_buys_the_lead_back()
     {

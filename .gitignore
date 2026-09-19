@@ -80,6 +80,7 @@ tools/__pycache__/
 # sources. Versioning them would put a binary diff in every commit that checked something.
 /docs/check.png
 /docs/run-*.png
+/docs/perf-*.png
 
 # ---------------------------------------------------------------- Warning
 # NEVER ignore the .meta files: Unity stores the GUID of every asset in them. A missing .meta

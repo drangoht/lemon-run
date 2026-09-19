@@ -7,6 +7,55 @@ the tested version.
 > the old one as such**: the reasoning that led to the mistake is worth as much as the correction.
 > This file is what avoids re-reporting a known bug and redoing a test already settled.
 
+## Session of 2026-09-19 - v0.1.0-9cc3cf2+ - two defects reported by PLAYING
+
+Both came from the author playing 0.1.0. Neither could have come from anywhere else, and that is
+the point worth keeping.
+
+### [BUG-001] A fruit bought no lead back -- FIXED
+
+Severity: Major. Reported as "the pursuer does not back off when fruit is collected".
+
+Cause: `Pursuer.Start` set `MaximumLead = CurrentLead = StartLead`. **The run opened exactly at
+the ceiling**, so `Lead.AfterGain` returned the lead unchanged and every fruit taken before the
+first hit did nothing at all. The rule was right; the starting state made it a lie.
+
+Why no test caught it: `LeadTests` asserted the capping behaviour, which was correct, and the
+paired runs of the fruit session took hits *before* reaching fruit, so the lead was always below
+the ceiling when a fruit landed. The defect lived exactly in the case no scenario visited.
+
+Fix: `MaximumLead` is now its own value (4.5 s against a 3.0 s start), guarded in `Pursuer` so it
+can never fall back to the start, and covered by two tests -- one asserting a fruit on a clean run
+buys something, one asserting the headroom is worth at least two mistakes.
+
+Verified in game: `hits 0, fruit 1, lead 3.35/4.5s`, gauge visibly longer. Exactly `FruitGain`
+above the opening lead, where the same situation used to read 3.00 and move nothing.
+
+### [BUG-002] "The game lags" -- NOT REPRODUCED, three costs removed
+
+Severity: unknown. **Not reproduced on Windows**: the build holds 16.7 ms (60 fps, vsync) with a
+worst frame of 33 ms -- one dropped frame over a three-second window. The report is most probably
+about the **web** build.
+
+The web build could not be profiled from here: a Chrome tab in a background window has its
+`requestAnimationFrame` frozen, so the game is not even running while something tries to measure
+it, and bringing the window forward would have taken over the screen. **So no before/after exists
+for the platform the complaint is about.**
+
+Removed anyway, because each was indefensible on its own terms:
+
+- `RunDebugLabel` built an interpolated string of six formatted floats **every frame**, for a line
+  a human reads a few times a second. Now throttled to 5 Hz.
+- `LeadGauge` wrote the fill's anchors and offsets **every frame**. Every `RectTransform` write
+  dirties the canvas, and a dirty canvas is rebuilt whole -- stamp and debug line included, sixty
+  times a second, for a bar that moves only on a hit or a fruit. Now written only on change.
+- `Runner.Flash` read the renderer's material every frame to decide whether to undo a quarter of a
+  second of colour. Now behind a flag.
+
+A frame-time readout was added to the debug line (smoothed ms, fps, and the worst frame over a
+rolling three seconds) so that "it lags" becomes a number that travels with a screenshot -- on the
+web build too, where no external profiler can reach.
+
 ## Session of 2026-09-19 - v0.1.0-6b9f465 - the published web build
 
 **Scope**: the build actually on itch.io, played in the browser from the project page.

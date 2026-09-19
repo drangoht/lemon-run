@@ -55,8 +55,21 @@ namespace LemonRun.Rules
 
         // ---- The pursuer --------------------------------------------------------------------
 
-        /// <summary>Lead the run opens with, in seconds. Also the cap fruit can buy back to.</summary>
+        /// <summary>Lead the run opens with, in seconds.</summary>
         public float StartLead = 3.0f;
+
+        /// <summary>Ceiling the lead can be bought back to. MUST stay above <see cref="StartLead"/>.</summary>
+        /// <remarks>
+        /// WARNING: these two were the same value, and that made every fruit swallowed before the
+        /// first hit do **nothing at all** -- the run opened already at the ceiling, so
+        /// <c>Lead.AfterGain</c> returned the lead unchanged. The rule was right and the starting
+        /// state made it a lie; nothing raised, and the player simply saw a reward that did not
+        /// reward. Found by playing, not by any test here.
+        ///
+        /// The headroom is what makes a clean early run worth something: bank fruit now, survive
+        /// two more mistakes later.
+        /// </remarks>
+        public float MaximumLead = 4.5f;
 
         /// <summary>Seconds of lead a hit hands back to the pursuer.</summary>
         public float HitCost = 0.7f;

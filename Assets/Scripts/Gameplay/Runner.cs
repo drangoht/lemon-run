@@ -56,6 +56,7 @@ namespace LemonRun.Gameplay
         {
             Hits++;
             _flashLeft = FlashDuration;
+            _flashing = true;
         }
 
         void Awake()
@@ -109,20 +110,27 @@ namespace LemonRun.Gameplay
             Flash(deltaTime);
         }
 
+        bool _flashing;
+
+        /// <remarks>
+        /// The idle branch used to read <c>_renderer.material.color</c> every frame to decide
+        /// whether to restore it -- a material access and a colour compare, for ever, to undo
+        /// something that lasts a quarter of a second. A flag costs nothing.
+        /// </remarks>
         void Flash(float deltaTime)
         {
-            if (_renderer == null) return;
+            if (_renderer == null || !_flashing) return;
 
+            _flashLeft -= deltaTime;
             if (_flashLeft > 0f)
             {
-                _flashLeft -= deltaTime;
                 _renderer.material.color = Color.Lerp(_restColour, new Color(1f, 0.25f, 0.2f),
                                                       Mathf.Clamp01(_flashLeft / FlashDuration));
+                return;
             }
-            else if (_renderer.material.color != _restColour)
-            {
-                _renderer.material.color = _restColour;
-            }
+
+            _renderer.material.color = _restColour;
+            _flashing = false;
         }
 
         bool _keyboardReported;

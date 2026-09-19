@@ -13,6 +13,25 @@ does not exist for the player: on a previous project, a dash was played for a wh
 the tester knowing a key existed. A passive effect with no indicator is believed to be inactive. That
 is an ergonomics bug, not a presentation detail.
 
+**WARNING: any write to a `RectTransform` rebuilds the WHOLE canvas.** The lead gauge set its
+fill's anchors and offsets every frame, so the build stamp and the debug line were rebuilt sixty
+times a second along with it -- for a bar that moves only when the runner is hit or swallows a
+fruit. Nothing reports it; it shows up as a game that "lags". Write only on change, and set the
+values that never change once, in `Awake`: re-writing an unchanged value dirties the canvas just
+the same.
+
+**WARNING: a debug readout formatted every frame is a heap allocation every frame.** Six floats
+into an interpolated string, for a line a human reads a few times a second -- and on WebGL the
+collection that follows is exactly the hitch the readout was added to measure. Throttle the
+FORMATTING (5 Hz is plenty); keep the sampling per frame. An equality check on the built string
+does not help: building it was the cost.
+
+**WARNING: "it lags" is not a report anyone can act on, and the web build cannot be profiled from
+outside** -- a browser tab in a background window has its `requestAnimationFrame` frozen, so the
+game is not even running while something measures it. Put the frame time ON SCREEN (smoothed ms,
+fps, and the worst frame over a rolling window): the number then travels with every screenshot,
+on every platform, with no tooling at all.
+
 **WARNING: Unity draws its own watermark in the bottom-right corner, and it is not in your scene.**
 Every development build stamps `Development Build` there. The build stamp label was anchored to that
 exact corner (`SceneBuilder.BuildStampCanvas`, `anchoredPosition (-12, 8)`): the two texts printed on

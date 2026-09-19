@@ -33,6 +33,7 @@ choosing to leave the opening is itself a readable decision, taken in full view 
 | Value | Set to | Where it comes from |
 |---|---|---|
 | Bought back per fruit | 0.35 s | half a hit: **two fruit undo one mistake** |
+| Ceiling it can buy up to | 4.5 s | above the 3.0 s start, or early fruit buys nothing |
 | Chance a jumpable lane carries one | 55 % | by eye |
 | Height it floats at | 1.05 unit | by eye, inside the jump arc |
 | Reach | 0.75 unit | wide on purpose, see below |
@@ -73,8 +74,11 @@ Nobody has played that.
   starves by design. Whether that is too harsh needs playing.
 - **The greedy trap is unmeasured**: how often deviating leaves the next opening out of reach is
   a number nobody has looked at, and it decides whether the gamble is fair or a punishment.
-- **A taken fruit says nothing.** It vanishes; no sound, no flash on the gauge. The lead it bought
-  is invisible in the moment it is bought.
+- **A taken fruit still says very little.** It vanishes; no sound, no flash on the gauge. One
+  fruit moves the drawn pursuer by about 0.4 unit out of a 5.1-unit band -- roughly 8 % -- which
+  at that distance is near the edge of what the eye catches. The gauge is the honest channel and
+  it is small too. This is the likeliest reason the gain read as "nothing happened" even once
+  BUG-001 was fixed, and it wants a real cue, not a bigger number.
 
 ## Where it lives
 
