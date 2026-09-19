@@ -3,7 +3,7 @@
 A three-lane endless runner seen from behind: you run, you dodge, you swallow fruit to buy back
 the lead separating you from a pursuer. Design: [docs/GDD.md](docs/GDD.md).
 
-Unity 6000.5.6f1 - C# - URP 3D - Input System - **0.1.0 playable in the browser** on
+Unity 6000.5.6f1 - C# - URP 3D - Input System - **0.1.1 playable in the browser** on
 [itch.io](https://drangoht.itch.io/lemon-run) (page still a draft).
 
 > This repo was born from the `unity-game-template` template. The `.claude/` files,
