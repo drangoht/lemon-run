@@ -28,8 +28,7 @@ same commit.** That file is what stops a bug from happening again six months lat
 
 **Phase 0 -- setting up** (started on 2026-09-19)
 
-- [ ] First build: `& "tools/build.ps1" -Run` -- it imports the project (~20 min) and generates
-      `Library/` + `ProjectSettings/`. Nothing to open in Unity Hub.
+- [x] First build done on 2026-09-19: `& "tools/build.ps1" -Run` builds, launches and captures.
 - [x] `docs/GDD.md`: pitch, loop, controls settled on 2026-09-19; 4 to 6 written system by system.
 - [x] Pipeline switched to **URP 3D** on 2026-09-19: perspective camera, sun, 2D renderer gone.
 - [ ] Create the itch page (`Kind of project` = HTML for a web game) and publish a 0.1.0.
