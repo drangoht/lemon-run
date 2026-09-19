@@ -18,7 +18,14 @@ namespace LemonRun.Gameplay
     public class CameraRig : MonoBehaviour
     {
         public Transform Target;
-        public Vector3 Offset = new Vector3(0f, 4.5f, -7f);
+        /// <remarks>
+        /// WARNING: the setback must stay GREATER than the furthest the pursuer is ever drawn.
+        /// The camera is behind the runner, so "far behind the runner" is "close to the camera":
+        /// with too short a setback, a full lead -- the safest moment of the run -- puts the
+        /// pursuer right under the lens and fills the screen with it. The reading is then exactly
+        /// backwards, and nothing anywhere reports it.
+        /// </remarks>
+        public Vector3 Offset = new Vector3(0f, 5.5f, -12f);
 
         /// <summary>Share of the runner's lateral offset that the camera takes on.</summary>
         public float LateralReach = 0.55f;

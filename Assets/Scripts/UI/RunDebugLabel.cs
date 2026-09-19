@@ -18,6 +18,7 @@ namespace LemonRun.UI
     public class RunDebugLabel : MonoBehaviour
     {
         public Runner Runner;
+        public Pursuer Pursuer;
 
         Text _text;
 
@@ -27,9 +28,11 @@ namespace LemonRun.UI
         {
             if (_text == null || Runner == null) return;
 
+            string lead = Pursuer != null ? $"   lead {Pursuer.CurrentLead:0.00}s" : "";
+
             _text.text = $"lane {Runner.Lane}   speed {Runner.Speed:0.0}   " +
                          $"distance {Runner.Distance:0.0}   height {Runner.Height:0.00}   " +
-                         $"hits {Runner.Hits}";
+                         $"hits {Runner.Hits}{lead}";
         }
     }
 }

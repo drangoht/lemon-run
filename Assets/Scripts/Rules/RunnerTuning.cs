@@ -52,5 +52,32 @@ namespace LemonRun.Rules
 
         /// <summary>Seed of the obstacle course. Same seed, same road.</summary>
         public uint CourseSeed = 20260919u;
+
+        // ---- The pursuer --------------------------------------------------------------------
+
+        /// <summary>Lead the run opens with, in seconds. Also the cap fruit can buy back to.</summary>
+        public float StartLead = 3.0f;
+
+        /// <summary>Seconds of lead a hit hands back to the pursuer.</summary>
+        public float HitCost = 0.7f;
+
+        /// <summary>Seconds a fruit buys back. Unused until the fruit exists.</summary>
+        public float FruitGain = 0.35f;
+
+        /// <summary>Closest and furthest the pursuer is DRAWN behind the runner, in world units.</summary>
+        /// <remarks>
+        /// Not the lead in distance: at full lead the true gap sits behind the camera. See
+        /// <c>Lead.DrawGap</c> -- the gauge carries the truth, this carries the reading of it.
+        ///
+        /// WARNING: the far edge is bounded by the CAMERA, not by taste. It must stay comfortably
+        /// under <c>CameraRig.Offset.z</c>: further back than the camera and the pursuer is not
+        /// drawn at all, and merely close to it, it fills the screen at the safest moment of the
+        /// run. Neither failure reports anything. Move one of the two and re-read the other.
+        /// </remarks>
+        public float PursuerNearest = 1.4f;
+        public float PursuerFurthest = 6.5f;
+
+        /// <summary>Seconds before a caught run will accept the key that restarts it.</summary>
+        public float RestartLockout = 0.7f;
     }
 }

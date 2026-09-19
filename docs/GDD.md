@@ -81,6 +81,7 @@ place on both layouts -- do not add a WASD alias without re-reading `docs/pitfal
 |---|---|---|
 | Running and lanes | [gdd/running-and-lanes.md](gdd/running-and-lanes.md) | Goes forward on its own, changes lane, jumps -- no number measured yet |
 | Obstacles | [gdd/obstacles.md](gdd/obstacles.md) | Low (jump or go round) and full (go round); every row survivable by construction |
+| The pursuer | [gdd/pursuer.md](gdd/pursuer.md) | The lead, in seconds; a hit costs it, nothing buys it back until the fruit exists |
 
 ## 5. Progression and difficulty
 

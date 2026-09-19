@@ -68,8 +68,17 @@ namespace LemonRun.Gameplay
             if (_renderer != null) _restColour = _renderer.material.color;
         }
 
+        /// <summary>Set once the run is over: the runner stops dead and stops listening.</summary>
+        /// <remarks>
+        /// A flag rather than <c>Time.timeScale = 0</c>: the end panel has to be able to animate,
+        /// and the restart key has to be read, both of which a frozen clock would also stop.
+        /// </remarks>
+        public bool Frozen;
+
         void Update()
         {
+            if (Frozen) return;
+
             float deltaTime = Time.deltaTime;
 
             ReadInput();

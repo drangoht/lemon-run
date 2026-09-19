@@ -7,6 +7,42 @@ the tested version.
 > the old one as such**: the reasoning that led to the mistake is worth as much as the correction.
 > This file is what avoids re-reporting a known bug and redoing a test already settled.
 
+## Session of 2026-09-19 - v1.0-de54e10+ - the pursuer
+
+**Scope**: the chase loop end to end -- lead draining on hits, gauge, catch, restart. **Not**
+tested: whether five hits is the right number, whether the pursuer is framed well, whether the
+gauge warns in time. None of that is a measurement.
+
+**Method**: `tools/drive_game.py`, no input at all, seeded course. A second pass with
+`StartLead 10` / `BlockedPercent 25` through `tuning.json`, to stretch the run and sample the
+gauge part-way instead of during the burst.
+
+### What works
+
+- **Five hits end a run**, matching the arithmetic asserted in `LeadTests`.
+- **The gauge empties** as the lead falls, and the pursuer visibly closes in -- by the end it
+  occludes the runner, which is what being caught should look like.
+- **The catch**: runner frozen, dim panel, `CAUGHT / 250 m / Space to run again`.
+- **Space starts a new run**: hits back to 0, lead back to 3.00 s, gauge full.
+- **The course is deterministic**: two untouched runs on the same seed both ended at **250.1 m**.
+  That is the property a balancing pass needs -- two settings compared on the same road.
+
+### Two framing defects, both found by looking and neither reported anywhere
+
+1. With the camera 7 units behind the runner, a pursuer drawn 6 units back was **not visible at
+   all**: on the ground, that far back, it falls under the view cone.
+2. Widening the band then put it *near the lens*, so at **full lead** -- the safest moment of the
+   run -- it filled the screen. The reading was inverted: safe looked like doom.
+
+Camera pulled back to 12 units so the band has room in front of it. Recorded in
+`docs/pitfalls/urp-rendering.md`.
+
+### Not verified
+
+The gauge is supposed to redden as it empties. It never came back red on a capture: the colour
+only turns in the last quarter, and the five hits arrive in a burst of a second or two. **Coded,
+not seen.**
+
 ## Session of 2026-09-19 - v1.0-c7595df+
 
 **Scope**: the obstacles -- that they appear, that they are told apart, that a hit registers, and

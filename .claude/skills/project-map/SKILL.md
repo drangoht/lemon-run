@@ -58,7 +58,9 @@ Pure logic, no engine dependency, **tested**. This is where every numeric rule o
 - `RowDraw` -- draws rows around a guaranteed, reachable opening. Deterministic: same seed,
   same road.
 - `RowSpacing` -- gap between rows expressed as a reaction window in seconds, not in units.
-- `RunnerTuning` -- every tunable value of the running and obstacle systems, with its defaults.
+- `Lead` -- the lead in SECONDS: what a hit costs, what fruit buys back, the gauge fraction,
+  and the gap at which the pursuer is DRAWN (not the real one -- see gdd/pursuer.md).
+- `RunnerTuning` -- every tunable value of the running, obstacle and pursuer systems.
 
 ## sec. Gameplay -- `Assets/Scripts/Gameplay/`
 
@@ -69,11 +71,17 @@ Pure logic, no engine dependency, **tested**. This is where every numeric rule o
   placed by `SceneBuilder`.
 - `ObstacleField` -- lays the rows ahead, takes them back behind, and decides what the runner ran
   into. Pools its pieces: an endless game collects its garbage at the worst moment.
+- `Pursuer` -- holds the lead, drains it on each hit, and places itself in a band that keeps it
+  framed. WARNING: its on-screen distance is NOT the lead.
+- `RunSession` -- watches for the catch, freezes the runner, shows the panel, restarts by
+  reloading the scene.
 
 ## sec. UI -- `Assets/Scripts/UI/`
 
 - `BuildStampLabel` -- the version stamp, bottom LEFT (bottom right belongs to Unity's watermark).
-- `RunDebugLabel` -- TEMPORARY debug readout (lane, speed, distance); goes with the real HUD.
+- `RunDebugLabel` -- TEMPORARY debug readout (lane, speed, distance, hits, lead).
+- `LeadGauge` -- the lead bar. The ONLY honest reading of how close the pursuer is.
+- `RunOverLabel` -- the end-of-run panel: distance run, and the key to go again.
 
 ## sec. Data
 

@@ -26,6 +26,19 @@ hole in the geometry rather than as lighting. `SceneBuilder.BuildSun()` sets
 it looks like lighting, and it lights nothing. *Was true under the 2D Renderer, and no longer
 applies here: a sprite with no global `Light2D` was rendered black -- the opposite failure.*
 
+**WARNING: behind a chase camera, "far behind the player" means "close to the lens".** The
+pursuer is drawn in a band behind the runner, and the camera sat only 7 units back: at full lead
+-- the *safest* moment of the run -- the pursuer was between the camera and the runner, a couple
+of units from the lens, and filled the screen. The reading was exactly inverted, and nothing
+reported it. Before that, a band wider than the setback put it behind the camera and it was not
+drawn at all: an invisible threat and a gauge that appeared to lie. The camera setback must stay
+comfortably GREATER than anything drawn behind the player.
+
+**WARNING: a ground-level object just in front of the camera is still out of frame.** With the
+camera at height 4.5 pitched 14 degrees down, anything on the road under about 4.7 units ahead
+falls below the view cone. "It is in front of the camera" is not "it is visible", and the object
+is simply absent with no error anywhere.
+
 **Guarded against, not suffered here: `GameObject.CreatePrimitive` and the magenta material.** A
 primitive carrying a Built-in pipeline material renders magenta under URP, with nothing logged.
 `SceneBuilder.Paint()` builds the material from `Shader.Find("Universal Render Pipeline/Lit")`

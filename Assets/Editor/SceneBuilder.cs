@@ -40,13 +40,22 @@ namespace LemonRun.EditorTools
         {
             Scene scene = EditorSceneManager.NewScene(NewSceneSetup.EmptyScene, NewSceneMode.Single);
 
-            var runner = BuildRunner();
-            BuildCamera(runner.transform);
+            var runnerGo = BuildRunner();
+            var runner = runnerGo.GetComponent<Runner>();
+
+            BuildCamera(runnerGo.transform);
             BuildSun();
-            BuildRoad(runner.transform);
-            BuildObstacles(runner.GetComponent<Runner>());
+            BuildRoad(runnerGo.transform);
+            BuildObstacles(runner);
+
+            var pursuer = BuildPursuer(runner);
+
+            var session = new GameObject("Run Session").AddComponent<RunSession>();
+            session.Runner = runner;
+            session.Pursuer = pursuer;
+
             BuildEventSystem();
-            BuildStampCanvas(runner.GetComponent<Runner>());
+            BuildStampCanvas(runner, pursuer, session);
 
             // ---- The game continues here ---------------------------------------------------
             // Add your own building methods (obstacles, fruit, the pursuer, HUD, menus, ...).
@@ -71,12 +80,12 @@ namespace LemonRun.EditorTools
             var go = new GameObject("Main Camera");
             var camera = go.AddComponent<Camera>();
             camera.orthographic = false;
-            camera.fieldOfView = 60f;
+            camera.fieldOfView = 55f;
             camera.nearClipPlane = 0.1f;
             camera.farClipPlane = 250f;
             camera.clearFlags = CameraClearFlags.SolidColor;
             camera.backgroundColor = new Color(0.10f, 0.10f, 0.18f);
-            camera.transform.rotation = Quaternion.Euler(14f, 0f, 0f);
+            camera.transform.rotation = Quaternion.Euler(16f, 0f, 0f);
             go.tag = "MainCamera";
 
             var rig = go.AddComponent<CameraRig>();
@@ -211,6 +220,27 @@ namespace LemonRun.EditorTools
             field.FullMaterial = Lit(new Color(0.72f, 0.20f, 0.30f));
         }
 
+        /// <summary>
+        /// The pursuer: bigger than the runner, and darker than anything else on the road.
+        /// </summary>
+        /// <remarks>
+        /// It is drawn inside a band that keeps it in frame whatever the lead (see
+        /// <c>Lead.DrawGap</c>), so it must never be mistaken for a measurement: the bar at the
+        /// top of the screen is what says how close it really is.
+        /// </remarks>
+        static Pursuer BuildPursuer(Runner runner)
+        {
+            var go = GameObject.CreatePrimitive(PrimitiveType.Cube);
+            go.name = "Pursuer";
+            go.transform.localScale = new Vector3(1.6f, 2.2f, 1.2f);
+            Object.DestroyImmediate(go.GetComponent<BoxCollider>());
+            Paint(go, Lit(new Color(0.22f, 0.10f, 0.26f)));
+
+            var pursuer = go.AddComponent<Pursuer>();
+            pursuer.Runner = runner;
+            return pursuer;
+        }
+
         static void Slab(Transform parent, string name, Vector3 position, Vector3 scale, Material material)
         {
             var go = GameObject.CreatePrimitive(PrimitiveType.Cube);
@@ -265,7 +295,7 @@ namespace LemonRun.EditorTools
         /// The build stamp lives on its <b>own</b> canvas rather than in the HUD: the HUD goes
         /// dark as soon as a menu opens, and menus are exactly where most screenshots are taken.
         /// </summary>
-        static void BuildStampCanvas(Runner runner)
+        static void BuildStampCanvas(Runner runner, Pursuer pursuer, RunSession session)
         {
             var canvasGo = new GameObject("Build Stamp Canvas");
             var canvas = canvasGo.AddComponent<Canvas>();
@@ -298,7 +328,88 @@ namespace LemonRun.EditorTools
 
             labelGo.AddComponent<BuildStampLabel>();
 
-            BuildDebugReadout(canvasGo.transform, runner);
+            BuildDebugReadout(canvasGo.transform, runner, pursuer);
+            BuildLeadGauge(canvasGo.transform, pursuer);
+            session.EndPanel = BuildEndPanel(canvasGo.transform, session);
+        }
+
+        /// <summary>The lead bar, top centre -- the only honest reading of the pursuer's distance.</summary>
+        static void BuildLeadGauge(Transform canvas, Pursuer pursuer)
+        {
+            var frame = new GameObject("Lead Gauge");
+            frame.transform.SetParent(canvas, false);
+
+            var background = frame.AddComponent<Image>();
+            background.color = new Color(1f, 1f, 1f, 0.12f);
+            background.raycastTarget = false;
+
+            var frameRect = frame.GetComponent<RectTransform>();
+            frameRect.anchorMin = new Vector2(0.5f, 1f);
+            frameRect.anchorMax = new Vector2(0.5f, 1f);
+            frameRect.pivot = new Vector2(0.5f, 1f);
+            frameRect.anchoredPosition = new Vector2(0f, -40f);
+            frameRect.sizeDelta = new Vector2(420f, 16f);
+
+            var fill = new GameObject("Fill");
+            fill.transform.SetParent(frame.transform, false);
+
+            var fillImage = fill.AddComponent<Image>();
+            fillImage.raycastTarget = false;
+
+            // Anchored left and stretched vertically: LeadGauge then drives anchorMax.x alone,
+            // so the bar empties from the right without any size to recompute.
+            var fillRect = fill.GetComponent<RectTransform>();
+            fillRect.anchorMin = new Vector2(0f, 0f);
+            fillRect.anchorMax = new Vector2(1f, 1f);
+            fillRect.offsetMin = Vector2.zero;
+            fillRect.offsetMax = Vector2.zero;
+
+            var gauge = frame.AddComponent<LemonRun.UI.LeadGauge>();
+            gauge.Pursuer = pursuer;
+            gauge.Fill = fillRect;
+            gauge.FillImage = fillImage;
+        }
+
+        /// <summary>
+        /// The end-of-run panel. Built <b>inactive</b>: <c>RunOverLabel</c> fills itself in on
+        /// being switched on, which is the moment the score exists.
+        /// </summary>
+        static GameObject BuildEndPanel(Transform canvas, RunSession session)
+        {
+            var panel = new GameObject("Run Over");
+            panel.transform.SetParent(canvas, false);
+
+            var dim = panel.AddComponent<Image>();
+            dim.color = new Color(0.04f, 0.04f, 0.08f, 0.72f);
+            dim.raycastTarget = false;
+
+            var panelRect = panel.GetComponent<RectTransform>();
+            panelRect.anchorMin = Vector2.zero;
+            panelRect.anchorMax = Vector2.one;
+            panelRect.offsetMin = Vector2.zero;
+            panelRect.offsetMax = Vector2.zero;
+
+            var labelGo = new GameObject("Text");
+            labelGo.transform.SetParent(panel.transform, false);
+
+            var text = labelGo.AddComponent<Text>();
+            text.font = Resources.GetBuiltinResource<Font>("LegacyRuntime.ttf");
+            text.fontSize = 40;
+            text.lineSpacing = 1.2f;
+            text.alignment = TextAnchor.MiddleCenter;
+            text.color = Color.white;
+            text.raycastTarget = false;
+
+            var labelRect = labelGo.GetComponent<RectTransform>();
+            labelRect.anchorMin = new Vector2(0.5f, 0.5f);
+            labelRect.anchorMax = new Vector2(0.5f, 0.5f);
+            labelRect.pivot = new Vector2(0.5f, 0.5f);
+            labelRect.sizeDelta = new Vector2(700f, 260f);
+
+            labelGo.AddComponent<LemonRun.UI.RunOverLabel>().Session = session;
+
+            panel.SetActive(false);
+            return panel;
         }
 
         /// <summary>
@@ -308,7 +419,7 @@ namespace LemonRun.EditorTools
         /// It rides the stamp canvas rather than the HUD for the same reason the stamp does: it
         /// must survive every screen, since the screens are where captures get taken.
         /// </remarks>
-        static void BuildDebugReadout(Transform canvas, Runner runner)
+        static void BuildDebugReadout(Transform canvas, Runner runner, Pursuer pursuer)
         {
             var go = new GameObject("Run Debug");
             go.transform.SetParent(canvas, false);
@@ -317,6 +428,7 @@ namespace LemonRun.EditorTools
             text.font = Resources.GetBuiltinResource<Font>("LegacyRuntime.ttf");
             text.fontSize = 16;
             text.alignment = TextAnchor.UpperLeft;
+            text.horizontalOverflow = HorizontalWrapMode.Overflow;
             text.color = new Color(1f, 1f, 1f, 0.75f);
             text.raycastTarget = false;
 
@@ -325,9 +437,11 @@ namespace LemonRun.EditorTools
             rect.anchorMax = new Vector2(0f, 1f);
             rect.pivot = new Vector2(0f, 1f);
             rect.anchoredPosition = new Vector2(12f, -10f);
-            rect.sizeDelta = new Vector2(420f, 24f);
+            rect.sizeDelta = new Vector2(900f, 24f);
 
-            go.AddComponent<LemonRun.UI.RunDebugLabel>().Runner = runner;
+            var readout = go.AddComponent<LemonRun.UI.RunDebugLabel>();
+            readout.Runner = runner;
+            readout.Pursuer = pursuer;
         }
     }
 }
