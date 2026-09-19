@@ -5,8 +5,9 @@ Loaded automatically at every session: **stay short and stable**. The detail liv
 
 ## The project
 
-"Lemon Run" -- A game.
-**Engine: Unity 6000.5.6f1** (C#, URP 2D, Input System package). Published on
+"Lemon Run" -- three-lane endless runner seen from behind: dodge, and swallow fruit to buy back the
+lead on a pursuer (`docs/GDD.md`).
+**Engine: Unity 6000.5.6f1** (C#, URP 3D, Input System package). Published on
 `https://Drangoht.itch.io/lemon-run`.
 
 ## Where to read what -- and nothing else
@@ -29,8 +30,9 @@ same commit.** That file is what stops a bug from happening again six months lat
 
 - [ ] First build: `& "tools/build.ps1" -Run` -- it imports the project (~20 min) and generates
       `Library/` + `ProjectSettings/`. Nothing to open in Unity Hub.
-- [ ] Fill in `docs/GDD.md` -- **`/write-the-gdd`** skill: pitch, game loop and controls before the
-      first line of code; the rest is written system by system.
+- [x] `docs/GDD.md`: pitch, loop, controls settled on 2026-09-19; 4 to 6 written system by system.
+- [ ] **Switch the pipeline to URP 3D** (`RenderPipelineSetup.cs`, `Assets/Settings/`): the template
+      ships a 2D renderer, a runner seen from behind is not one. Before any gameplay -- GDD §7.
 - [ ] Create the itch page (`Kind of project` = HTML for a web game) and publish a 0.1.0.
 
 ## Agent team -- delegate, but not at a loss
