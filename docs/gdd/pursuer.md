@@ -57,8 +57,8 @@ as though it restarted on its own.
 
 ## Still open
 
-- **The gauge reddens only in its last quarter**, and by then it is also short. Whether that warns
-  in time is unknown: it has been coded, not seen -- no capture caught it red.
+- **The gauge reddens only in its last quarter**, and by then it is also short. Seen at last on
+  the published build (olive at 0.90 s of 3.00); whether it warns *in time* is still unknown.
 - **The pursuer is large in frame** even at full lead. That is a framing judgement and it needs
   eyes, not a measurement.
 - **Nothing is measured.** Five hits per run is arithmetic, not balance.

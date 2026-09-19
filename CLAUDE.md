@@ -26,12 +26,13 @@ same commit.** That file is what stops a bug from happening again six months lat
 
 ## Current phase
 
-**Phase 0 -- setting up** (started on 2026-09-19)
+**Phase 0 -- setting up** (started on 2026-09-19) -- done, bar the draft page going public
 
 - [x] First build done on 2026-09-19: `& "tools/build.ps1" -Run` builds, launches and captures.
 - [x] `docs/GDD.md`: pitch, loop, controls settled on 2026-09-19; 4 to 6 written system by system.
 - [x] Pipeline switched to **URP 3D** on 2026-09-19: perspective camera, sun, 2D renderer gone.
-- [ ] Create the itch page (`Kind of project` = HTML for a web game) and publish a 0.1.0.
+- [x] itch page created and **0.1.0 published** on the `html5` channel (2026-09-19), played in
+      the browser and checked there. The page is still a **Draft**.
 
 ## Agent team -- delegate, but not at a loss
 

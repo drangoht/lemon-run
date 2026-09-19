@@ -7,6 +7,30 @@ the tested version.
 > the old one as such**: the reasoning that led to the mistake is worth as much as the correction.
 > This file is what avoids re-reporting a known bug and redoing a test already settled.
 
+## Session of 2026-09-19 - v0.1.0-6b9f465 - the published web build
+
+**Scope**: the build actually on itch.io, played in the browser from the project page.
+
+### What works
+
+- Loads and plays embedded in the page. Stamp reads **v0.1.0-6b9f465**, the pushed version.
+- The keyboard answers through WebGL -- the thing the aggressive default stripping breaks
+  silently. `managedStrippingLevel: WebGL: 1` (Low) was already set by the template.
+- The whole loop, live: lane changes, hits, lead draining, fruit, catch, score with its
+  breakdown, restart.
+
+### Correcting the previous session
+
+The pursuer session recorded the lead gauge reddening as **"coded, not seen"**. It has now been
+seen: at `lead 0.90s` of 3.00 the bar is plainly olive, against the green it shows at full lead.
+The earlier entry stands as written -- it was true of what had been observed at the time.
+
+### One thing nothing in the repo could have caught
+
+The build pushed and processed correctly and the page still served a **download** instead of a
+game: *Kind of project* was left on "Downloadable". `docs/ITCH_STORE_PAGE.md` lists it first among
+the settings that live in no file of the repo, and it cost a round trip anyway.
+
 ## Session of 2026-09-19 - v1.0-547f287+ - the fruit
 
 **Scope**: that fruit is laid where GDD section 5 says, that it is swallowed, that it buys lead
