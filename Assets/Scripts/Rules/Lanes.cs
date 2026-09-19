@@ -40,5 +40,19 @@ namespace LemonRun.Rules
         /// <summary>Lateral position of a lane's centre, the middle lane sitting on x = 0.</summary>
         public static float CenterX(int lane, float laneWidth)
             => (Clamp(lane) - (Count - 1) * 0.5f) * laneWidth;
+
+        /// <summary>The lane a runner sitting at <paramref name="x"/> counts as being on.</summary>
+        /// <remarks>
+        /// Halfway through a lane change the runner is on no lane at all, and an obstacle met
+        /// right then still has to be answered one way or the other. Rounding to the nearest
+        /// centre is the answer that matches what the player sees: past the half, the runner
+        /// visibly belongs to the lane it is entering.
+        /// </remarks>
+        public static int NearestLane(float x, float laneWidth)
+        {
+            if (laneWidth <= 0f) return Start;
+            return Clamp((int)System.Math.Round(x / laneWidth + (Count - 1) * 0.5f,
+                                                System.MidpointRounding.AwayFromZero));
+        }
     }
 }

@@ -54,7 +54,11 @@ Pure logic, no engine dependency, **tested**. This is where every numeric rule o
 - `LaneTravel` -- progress of a lane change and its easing.
 - `JumpArc` -- height during a jump; fixed duration, not a physics simulation.
 - `RunPace` -- speed as a function of distance run: a ramp, then flat.
-- `RunnerTuning` -- every tunable value of the running system, with its defaults.
+- `ObstacleRules` -- what a row allows, whether a hit lands, and the CROSSING of a row.
+- `RowDraw` -- draws rows around a guaranteed, reachable opening. Deterministic: same seed,
+  same road.
+- `RowSpacing` -- gap between rows expressed as a reaction window in seconds, not in units.
+- `RunnerTuning` -- every tunable value of the running and obstacle systems, with its defaults.
 
 ## sec. Gameplay -- `Assets/Scripts/Gameplay/`
 
@@ -63,6 +67,8 @@ Pure logic, no engine dependency, **tested**. This is where every numeric rule o
 - `CameraRig` -- keeps the camera behind and above, following a lane change only halfway.
 - `GroundTreadmill` -- recycles the road tiles in front of the runner; the tiles are its children,
   placed by `SceneBuilder`.
+- `ObstacleField` -- lays the rows ahead, takes them back behind, and decides what the runner ran
+  into. Pools its pieces: an endless game collects its garbage at the worst moment.
 
 ## sec. UI -- `Assets/Scripts/UI/`
 

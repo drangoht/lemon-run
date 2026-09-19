@@ -67,23 +67,20 @@ WARNING: **AZERTY** keyboard: `Key.A` falls under the key marked Q. Avoid `A`, `
 global shortcuts. The arrow keys and Space are chosen precisely because they sit at the same physical
 place on both layouts -- do not add a WASD alias without re-reading `docs/pitfalls/input.md`.
 
-<!-- Still to be decided, at the moment the movement system is built (section 4), not before:
-     - is a lane change instant, or does it travel (and can it be reversed mid-travel)?
-     - is an input buffered while airborne, or dropped?
-     Both are input-window questions: they are answered with a prototype in hand, not here. -->
+<!-- The input-window questions left open here (buffering a second change, an input while
+     airborne) moved into gdd/running-and-lanes.md when that system was built. -->
 
 ## 4. Systems
 
-<!-- WARNING: THIS SECTION IS AN INDEX, NOT CONTENT. One system = one docs/gdd/<system>.md file,
-     one line here. It is the section that swells fastest (it reached 21 KB on a Snake), and
-     everything written in it is re-read in full by every agent touching ANOTHER system.
-
-     Each file says: what the system does, its values, and the measurement or observation that
-     justifies them. The numeric values live in Assets/Scripts/Rules/, not here. -->
+<!-- WARNING: AN INDEX, NOT CONTENT. One system = one docs/gdd/<system>.md file, one line here.
+     It is the section that swells fastest, and all of it is re-read by every agent touching
+     ANOTHER system. Each file says what the system does, its values, and what justifies them;
+     the numbers live in Assets/Scripts/Rules/, not here. -->
 
 | System | File | In one sentence |
 |---|---|---|
 | Running and lanes | [gdd/running-and-lanes.md](gdd/running-and-lanes.md) | Goes forward on its own, changes lane, jumps -- no number measured yet |
+| Obstacles | [gdd/obstacles.md](gdd/obstacles.md) | Low (jump or go round) and full (go round); every row survivable by construction |
 
 ## 5. Progression and difficulty
 

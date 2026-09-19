@@ -47,4 +47,21 @@ public class LanesTests
     [Fact]
     public void The_run_starts_on_the_middle_lane()
         => Assert.Equal(0f, Lanes.CenterX(Lanes.Start, 2f), 4);
+
+    [Theory]
+    [InlineData(-2f, 0)]
+    [InlineData(-1.4f, 0)]   // still mostly on the left lane
+    [InlineData(-0.6f, 1)]   // past the half: counts as the middle one
+    [InlineData(0f, 1)]
+    [InlineData(2f, 2)]
+    [InlineData(99f, 2)]     // off the road: clamped rather than out of range
+    public void Mid_change_the_runner_counts_as_being_on_the_nearest_lane(float x, int expected)
+        => Assert.Equal(expected, Lanes.NearestLane(x, 2f));
+
+    [Fact]
+    public void Every_lane_centre_maps_back_to_its_own_lane()
+    {
+        for (int lane = 0; lane < Lanes.Count; lane++)
+            Assert.Equal(lane, Lanes.NearestLane(Lanes.CenterX(lane, 2f), 2f));
+    }
 }

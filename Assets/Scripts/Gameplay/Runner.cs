@@ -30,6 +30,30 @@ namespace LemonRun.Gameplay
         public float Distance => _distance;
         public float Speed { get; private set; }
 
+        /// <summary>Height of the runner's underside above the road: 0 when grounded.</summary>
+        public float Height { get; private set; }
+
+        public int Hits { get; private set; }
+
+        MeshRenderer _renderer;
+        Color _restColour;
+        float _flashLeft;
+
+        /// <summary>Seconds the runner stays lit up after a hit.</summary>
+        public float FlashDuration = 0.25f;
+
+        /// <remarks>
+        /// What a hit COSTS is not decided here: the lead it hands back to the pursuer belongs to
+        /// a system that does not exist yet (GDD section 2). Until then a hit is counted and shown
+        /// -- shown because a rule the player cannot see did not happen as far as they are
+        /// concerned.
+        /// </remarks>
+        public void TakeHit()
+        {
+            Hits++;
+            _flashLeft = FlashDuration;
+        }
+
         void Awake()
         {
             Tuning = TuningLoader.Load();
@@ -37,6 +61,11 @@ namespace LemonRun.Gameplay
             _groundY = transform.position.y;
             _fromX = _toX = Lanes.CenterX(_lane, Tuning.LaneWidth);
             transform.position = new Vector3(_toX, _groundY, 0f);
+
+            _renderer = GetComponent<MeshRenderer>();
+            // .material and not .sharedMaterial: the flash must not write into the asset shared
+            // with anything else painted the same colour.
+            if (_renderer != null) _restColour = _renderer.material.color;
         }
 
         void Update()
@@ -61,7 +90,26 @@ namespace LemonRun.Gameplay
                     _jumpElapsed = -1f;   // landed
             }
 
+            Height = height;
             transform.position = new Vector3(x, _groundY + height, _distance);
+
+            Flash(deltaTime);
+        }
+
+        void Flash(float deltaTime)
+        {
+            if (_renderer == null) return;
+
+            if (_flashLeft > 0f)
+            {
+                _flashLeft -= deltaTime;
+                _renderer.material.color = Color.Lerp(_restColour, new Color(1f, 0.25f, 0.2f),
+                                                      Mathf.Clamp01(_flashLeft / FlashDuration));
+            }
+            else if (_renderer.material.color != _restColour)
+            {
+                _renderer.material.color = _restColour;
+            }
         }
 
         bool _keyboardReported;

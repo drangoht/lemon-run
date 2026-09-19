@@ -44,6 +44,7 @@ namespace LemonRun.EditorTools
             BuildCamera(runner.transform);
             BuildSun();
             BuildRoad(runner.transform);
+            BuildObstacles(runner.GetComponent<Runner>());
             BuildEventSystem();
             BuildStampCanvas(runner.GetComponent<Runner>());
 
@@ -187,6 +188,27 @@ namespace LemonRun.EditorTools
                     }
                 }
             }
+        }
+
+        /// <summary>
+        /// The obstacle field. It holds no obstacle: it lays them in front of the runner as the
+        /// run goes, and takes them back behind.
+        /// </summary>
+        /// <remarks>
+        /// The two materials are built here so that every URP material in the game comes from the
+        /// same place (<see cref="Lit"/>), and are handed over rather than looked up at run time.
+        ///
+        /// Low obstacles are deliberately the colour of a warning and full ones that of a wall:
+        /// the answer to each differs (jump or go round), so telling them apart at a distance is
+        /// the whole readability of the road.
+        /// </remarks>
+        static void BuildObstacles(Runner runner)
+        {
+            var go = new GameObject("Obstacles");
+            var field = go.AddComponent<ObstacleField>();
+            field.Runner = runner;
+            field.LowMaterial = Lit(new Color(0.90f, 0.45f, 0.15f));
+            field.FullMaterial = Lit(new Color(0.72f, 0.20f, 0.30f));
         }
 
         static void Slab(Transform parent, string name, Vector3 position, Vector3 scale, Material material)

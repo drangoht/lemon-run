@@ -37,6 +37,14 @@ See the **`/verify-in-game`** skill for the full procedure. The pitfalls, in sho
   produces a plausible image, and whatever is concluded from it is wrong. Before trusting an odd
   capture, check the size printed by `drive_game.py`: the game is launched at 1280x720, so any rect
   far from ~1298x767 is not the game window.
+- **A driving cadence that beats against a game duration measures the beat, not the game.**
+  Jumping every 0.60 s against a 0.62 s jump arc has every other press refused (no double jump),
+  leaves the runner grounded ~48 % of the time, and turned an 80 % drop in hits into a 43 % one.
+  The figure looked like a weak effect and was an artefact of the scenario. Before concluding
+  anything from a repeated key, check the period against the durations the game is made of.
+- **A value changed in `tuning.json` for one test stays there for every later run.** The file
+  lives beside the binary and is only rewritten when it is missing, so a road packed dense for a
+  measurement silently becomes the road of the next session. Put the defaults back, or delete it.
 - **`prime()` presses Down then Up, and those are game actions.** The throwaway key that works
   around the lost-first-press is not neutral: Up is the jump. Every scenario driven through
   `--keys` therefore starts with a jump already under way, which shifts what the first capture

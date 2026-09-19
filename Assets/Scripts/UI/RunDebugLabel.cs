@@ -27,7 +27,9 @@ namespace LemonRun.UI
         {
             if (_text == null || Runner == null) return;
 
-            _text.text = $"lane {Runner.Lane}   speed {Runner.Speed:0.0}   distance {Runner.Distance:0.0}";
+            _text.text = $"lane {Runner.Lane}   speed {Runner.Speed:0.0}   " +
+                         $"distance {Runner.Distance:0.0}   height {Runner.Height:0.00}   " +
+                         $"hits {Runner.Hits}";
         }
     }
 }
