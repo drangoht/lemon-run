@@ -25,3 +25,19 @@ See the **`/verify-in-game`** skill for the full procedure. The pitfalls, in sho
 - **What is pure geometry cannot be proven by playing**: a throwaway file in `Assets/Editor` called
   with `-executeMethod` logs the bounds to within two pixels. That is what caught a zone three times
   too wide whose formula read perfectly.
+- **Never look up the game window by its TITLE.** `find_window` matched any visible window whose
+  title *contained* "Lemon Run" and kept the first one. An editor showing a file called
+  `new-game.ps1 -Name "Lemon Run"` in its tab carries that string in its window title -- so
+  `tools/build.ps1 -Run` framed **the editor**, and `docs/check.png` came back a flawless screenshot
+  of VS Code. Every safeguard agreed: the window "existed", `GetForegroundWindow()` matched it (the
+  editor really was in front), exit code 0. Reproduced with a Notepad on a `Lemon Run.txt`: it comes
+  **before** the game in the `EnumWindows` order, so it wins. Match on the **owning executable**
+  (`GetWindowThreadProcessId` + `QueryFullProcessImageNameW`), which cannot be borrowed by accident.
+- **A capture that frames the wrong window is the worst failure of this tool**: it does not crash, it
+  produces a plausible image, and whatever is concluded from it is wrong. Before trusting an odd
+  capture, check the size printed by `drive_game.py`: the game is launched at 1280x720, so any rect
+  far from ~1298x767 is not the game window.
+- **A decoy window built with WinForms but no message pump is never enumerated**: a first attempt at
+  testing the above with `$f.Show()` from a sleeping PowerShell produced a window that `EnumWindows`
+  never saw -- so the test passed while proving nothing. Use a real application (Notepad) to
+  reproduce a window-lookup defect.

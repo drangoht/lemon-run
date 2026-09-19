@@ -40,6 +40,9 @@ Pitfalls already paid for (do not rediscover them)
    land in the void -- with no error, just a screenshot showing something other than expected.
 8. **Settings are persistent (PlayerPrefs).** Driving an option with N presses on Right gives a
    result *relative* to the previous session: go back to a known extreme first.
+9. **Never find the window by its TITLE.** `"Lemon Run" in title` also matches an editor showing a
+   file named after the game; the capture then frames that editor, with the focus check passing
+   because the impostor really is in the foreground. Match on the **owning executable**.
 """
 
 from __future__ import annotations
@@ -56,6 +59,7 @@ EXE = pathlib.Path(__file__).resolve().parent.parent / "Build" / "Windows" / "Le
 TITLE = "Lemon Run"
 
 user32 = ctypes.windll.user32
+kernel32 = ctypes.windll.kernel32
 user32.SetProcessDPIAware()
 
 # --- Key table ---------------------------------------------------------------------
@@ -90,26 +94,72 @@ MOUSEEVENTF_LEFTUP = 0x0004
 
 # --- Window ------------------------------------------------------------------------
 
+def window_title(hwnd: int) -> str:
+    length = user32.GetWindowTextLengthW(hwnd)
+    if length == 0:
+        return ""
+    buffer = ctypes.create_unicode_buffer(length + 1)
+    user32.GetWindowTextW(hwnd, buffer, length + 1)
+    return buffer.value
+
+
+def _owning_executable(hwnd: int) -> str:
+    """File name of the executable owning `hwnd`, lowercase, or "" if it cannot be read."""
+    PROCESS_QUERY_LIMITED_INFORMATION = 0x1000
+    pid = wt.DWORD()
+    user32.GetWindowThreadProcessId(hwnd, ctypes.byref(pid))
+    if not pid.value:
+        return ""
+    handle = kernel32.OpenProcess(PROCESS_QUERY_LIMITED_INFORMATION, False, pid.value)
+    if not handle:
+        return ""
+    try:
+        size = wt.DWORD(32768)
+        buffer = ctypes.create_unicode_buffer(size.value)
+        if not kernel32.QueryFullProcessImageNameW(handle, 0, buffer, ctypes.byref(size)):
+            return ""
+        return pathlib.PurePath(buffer.value).name.lower()
+    finally:
+        kernel32.CloseHandle(handle)
+
+
 def find_window() -> int | None:
-    """Returns the handle of the game window, or None."""
-    found = []
+    """
+    Returns the handle of the game window, identified by the process that OWNS it.
+
+    WARNING: matching on the title is what this used to do, and it silently framed the wrong
+    window. Any window whose title merely CONTAINS "Lemon Run" matched -- an editor with a file
+    named after the game in its tab is enough -- and since that impostor was in the foreground, the
+    focus check passed and the capture came back a perfect screenshot of the editor. No error
+    anywhere. The owning executable is the only thing that cannot be borrowed by accident.
+    """
+    matches: list[int] = []
+    impostors: list[str] = []
 
     @ctypes.WINFUNCTYPE(wt.BOOL, wt.HWND, wt.LPARAM)
     def callback(hwnd, _):
         if not user32.IsWindowVisible(hwnd):
             return True
-        length = user32.GetWindowTextLengthW(hwnd)
-        if length == 0:
-            return True
-        buffer = ctypes.create_unicode_buffer(length + 1)
-        user32.GetWindowTextW(hwnd, buffer, length + 1)
-        if TITLE.lower() in buffer.value.lower():
-            found.append(hwnd)
-            return False
+        if _owning_executable(hwnd) == EXE.name.lower():
+            matches.append(hwnd)
+        elif TITLE.lower() in window_title(hwnd).lower():
+            impostors.append(window_title(hwnd))
         return True
 
     user32.EnumWindows(callback, 0)
-    return found[0] if found else None
+
+    if not matches:
+        for title in impostors:
+            print(f"!! Ignored: a window is called {title!r} but does not belong to {EXE.name}.",
+                  file=sys.stderr)
+        return None
+
+    # A Unity player can own more than one visible window (splash, helpers): the titled one is the
+    # game. EnumWindows walks in z-order, so the first titled match is the frontmost.
+    for hwnd in matches:
+        if window_title(hwnd):
+            return hwnd
+    return matches[0]
 
 
 def wait_for_window(timeout: float = 30.0) -> int:

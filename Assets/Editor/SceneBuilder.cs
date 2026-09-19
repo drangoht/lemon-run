@@ -119,15 +119,18 @@ namespace LemonRun.EditorTools
             var text = labelGo.AddComponent<Text>();
             text.font = Resources.GetBuiltinResource<Font>("LegacyRuntime.ttf");
             text.fontSize = 14;
-            text.alignment = TextAnchor.LowerRight;
+            text.alignment = TextAnchor.LowerLeft;
             text.color = new Color(1f, 1f, 1f, 0.45f);
             text.raycastTarget = false;
 
+            // Bottom LEFT, not bottom right: Unity draws its own "Development Build" watermark in
+            // the bottom-right corner of every development build, and the two texts landed exactly
+            // on top of each other -- neither of them readable on a capture.
             var rect = labelGo.GetComponent<RectTransform>();
-            rect.anchorMin = new Vector2(1f, 0f);
-            rect.anchorMax = new Vector2(1f, 0f);
-            rect.pivot = new Vector2(1f, 0f);
-            rect.anchoredPosition = new Vector2(-12f, 8f);
+            rect.anchorMin = new Vector2(0f, 0f);
+            rect.anchorMax = new Vector2(0f, 0f);
+            rect.pivot = new Vector2(0f, 0f);
+            rect.anchoredPosition = new Vector2(12f, 8f);
             rect.sizeDelta = new Vector2(300f, 20f);
 
             labelGo.AddComponent<BuildStampLabel>();

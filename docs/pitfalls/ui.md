@@ -12,3 +12,10 @@ navigates perfectly with the mouse. Test every screen **with the keyboard and wi
 does not exist for the player: on a previous project, a dash was played for a whole session without
 the tester knowing a key existed. A passive effect with no indicator is believed to be inactive. That
 is an ergonomics bug, not a presentation detail.
+
+**WARNING: Unity draws its own watermark in the bottom-right corner, and it is not in your scene.**
+Every development build stamps `Development Build` there. The build stamp label was anchored to that
+exact corner (`SceneBuilder.BuildStampCanvas`, `anchoredPosition (-12, 8)`): the two texts printed on
+top of each other, and **both** became unreadable -- on screen and on every `docs/check.png`. Nothing
+raises: the scene is correct, the canvas is correct, only the pixels are unreadable. Anchor the
+HUD's persistent corner elements **bottom left**, and reserve the bottom-right corner for Unity.
